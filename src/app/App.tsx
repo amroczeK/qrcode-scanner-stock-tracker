@@ -1,16 +1,16 @@
-import {
-  BarcodeScanningResult,
-  CameraView,
-  useCameraPermissions,
-} from "expo-camera/next";
 import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { BarcodeScanningResult, useCameraPermissions } from "expo-camera/next";
+import { StyleSheet, Text, View } from "react-native";
+import Camera from "../components/Camera";
+import { registerRootComponent } from "expo";
+import ScanButton from "@/components/ScanButton";
+import DataForm, { ScannedData } from "@/components/DataForm";
 
-export default function App() {
+function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [error, setError] = useState<unknown | null>(null);
   const [isCameraVisible, setIsCameraVisible] = useState<boolean>(false);
-  const [barcode, setBarcode] = useState<string>();
+  const [data, setData] = useState<ScannedData>();
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -25,9 +25,24 @@ export default function App() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ data }: BarcodeScanningResult) => {
-    setBarcode(data);
-    setIsCameraVisible(false);
+  const handleScannedQrCode = ({ data }: BarcodeScanningResult) => {
+    const lines = data.split("\\n");
+    const parsedData: ScannedData = {
+      stockNumber: lines[0],
+      description: lines[1],
+      heatNumber: lines[2],
+      weight: 0,
+    };
+    setData(parsedData);
+    toggleCameraVisibility();
+  };
+
+  const toggleCameraVisibility = () =>
+    setIsCameraVisible((prevState) => !prevState);
+
+  const resetViews = () => {
+    toggleCameraVisibility();
+    setData(undefined);
   };
 
   if (!permission) {
@@ -56,47 +71,25 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {isCameraVisible && (
-        <CameraView
-          style={styles.camera}
-          facing={"back"}
-          onBarcodeScanned={handleBarCodeScanned}
-        />
+      <Camera isOpen={isCameraVisible} onQrCodeScan={handleScannedQrCode} />
+      {data && !isCameraVisible && (
+        <DataForm data={data} onCancelHandler={resetViews} />
       )}
-      <View style={styles.barcodeContainer}>
-        {barcode && <Text>{barcode}</Text>}
-        <Button title="Scan" onPress={() => setIsCameraVisible(true)} />
-      </View>
+      {!data && !isCameraVisible && (
+        <ScanButton onClickHandler={toggleCameraVisibility} />
+      )}
     </View>
   );
 }
+
+registerRootComponent(App);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-  },
-  camera: {
-    height: "100%",
-    width: "100%",
-  },
-  barcodeContainer: {
-    flex: 1,
     gap: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    padding: 16,
-  },
-  buttonContainer: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 16,
-    backgroundColor: "red",
-  },
-  button: {
-    backgroundColor: "green",
-    padding: 16,
   },
 });
