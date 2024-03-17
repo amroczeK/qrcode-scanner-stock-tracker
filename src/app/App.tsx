@@ -3,7 +3,7 @@ import { BarcodeScanningResult, useCameraPermissions } from "expo-camera/next";
 import { StyleSheet, Text, View } from "react-native";
 import Camera from "../components/Camera";
 import { registerRootComponent } from "expo";
-import ScanButton from "@/components/ScanButton";
+import StyledButton from "@/components/StyledButton";
 import DataForm, { ScannedData } from "@/components/DataForm";
 import StockTable, { StockData } from "@/components/StockTable";
 import { PaperProvider } from "react-native-paper";
@@ -100,7 +100,10 @@ function App() {
           />
         )}
         {!scannedData && !isCameraVisible && (
-          <ScanButton onClickHandler={toggleCameraVisibility} />
+          <StyledButton
+            title={"Scan QR Code"}
+            onClickHandler={toggleCameraVisibility}
+          />
         )}
       </View>
     </PaperProvider>

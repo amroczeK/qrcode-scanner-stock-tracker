@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { DataTable } from "react-native-paper";
+import StyledButton from "./StyledButton";
+import { arrayToCsv, exportCsv } from "@/utilities";
 
 type Props = {
   data: StockData[];
@@ -24,6 +26,16 @@ const StockTable = ({ data = [] }: Props) => {
 
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, data.length);
+
+  const exportDataHandler = async () => {
+    return alert("Not available yet.");
+    try {
+      const csvString: string = arrayToCsv(data);
+      await exportCsv(csvString);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     setPage(0);
@@ -63,6 +75,12 @@ const StockTable = ({ data = [] }: Props) => {
           selectPageDropdownLabel={"Rows per page"}
         />
       </DataTable>
+      <View style={styles.buttonContainer}>
+        <StyledButton
+          title={"Export Data"}
+          onClickHandler={exportDataHandler}
+        />
+      </View>
     </View>
   );
 };
@@ -76,5 +94,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "800",
+  },
+  buttonContainer: {
+    alignItems: "center",
   },
 });
