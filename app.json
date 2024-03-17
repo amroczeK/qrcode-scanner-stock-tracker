@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d97d9b05-9fbe-42a9-babe-c558c84d6c74"
+      }
+    },
+    "owner": "amroczek90"
   }
 }
