@@ -1,13 +1,16 @@
-import { CameraView, useCameraPermissions } from "expo-camera/next";
+import {
+  BarcodeScanningResult,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera/next";
 import { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
-  const [facing, setFacing] = useState("back");
   const [permission, requestPermission] = useCameraPermissions();
-  const [error, setError] = useState(null);
-  const [isCameraVisible, setIsCameraVisible] = useState(false);
-  const [barcode, setBarcode] = useState(null);
+  const [error, setError] = useState<unknown | null>(null);
+  const [isCameraVisible, setIsCameraVisible] = useState<boolean>(false);
+  const [barcode, setBarcode] = useState<string>();
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -22,8 +25,7 @@ export default function App() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }) => {
-    console.log(Math.random());
+  const handleBarCodeScanned = ({ data }: BarcodeScanningResult) => {
     setBarcode(data);
     setIsCameraVisible(false);
   };
@@ -57,7 +59,7 @@ export default function App() {
       {isCameraVisible && (
         <CameraView
           style={styles.camera}
-          facing={facing}
+          facing={"back"}
           onBarcodeScanned={handleBarCodeScanned}
         />
       )}
@@ -68,7 +70,6 @@ export default function App() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -82,19 +83,20 @@ const styles = StyleSheet.create({
   },
   barcodeContainer: {
     flex: 1,
+    gap: 16,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#fff",
-    padding: "1rem",
+    padding: 16,
   },
   buttonContainer: {
     display: "flex",
     flexDirection: "column",
-    gap: "1rem",
+    gap: 16,
     backgroundColor: "red",
   },
   button: {
     backgroundColor: "green",
-    padding: "1rem",
+    padding: 16,
   },
 });
