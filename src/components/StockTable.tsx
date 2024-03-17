@@ -30,6 +30,7 @@ const StockTable = ({ data = [] }: Props) => {
   const exportDataHandler = async () => {
     return alert("Not available yet.");
     try {
+      // TODO: Fix this, doesn't work, deprecated SDK's
       const csvString: string = arrayToCsv(data);
       await exportCsv(csvString);
     } catch (error) {
