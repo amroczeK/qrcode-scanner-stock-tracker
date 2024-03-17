@@ -1,12 +1,22 @@
 import React from "react";
-import { Button } from "react-native";
+import { Button, StyleSheet, View } from "react-native";
 
 type Props = {
   onClickHandler: () => void;
 };
 
 function ScanButton({ onClickHandler }: Props) {
-  return <Button title="Scan" onPress={onClickHandler} />;
+  return (
+    <View style={styles.container}>
+      <Button title="Scan QR Code" onPress={onClickHandler} />
+    </View>
+  );
 }
 
 export default ScanButton;
+
+const styles = StyleSheet.create({
+  container: {
+    width: 180
+  },
+});

@@ -6,19 +6,20 @@ import { RadioButton } from "react-native-paper";
 type Props = {
   data: ScannedData;
   onCancelHandler: () => void;
+  onSubmitHandler: (data: Required<ScannedData>) => void;
 };
 
 export type ScannedData = StockFormData;
 
 type StockFormData = {
-  stockNumber: string | undefined;
-  description: string | undefined;
-  heatNumber: string | undefined;
-  weight?: number;
-  stockInOrOut?: string;
+  stockNumber: string;
+  description: string;
+  heatNumber: string;
+  weight: number;
+  stockInOrOut: string;
 };
 
-function DataForm({ data, onCancelHandler }: Props) {
+function DataForm({ data, onCancelHandler, onSubmitHandler }: Props) {
   const {
     control,
     handleSubmit,
@@ -30,11 +31,11 @@ function DataForm({ data, onCancelHandler }: Props) {
       description: data.description,
       heatNumber: data.heatNumber,
       weight: 0,
-      stockInOrOut: "stock in",
+      stockInOrOut: "IN",
     },
   });
 
-  const onSubmit = (data: any) => console.log(data);
+  const onSubmit = (data: ScannedData) => onSubmitHandler(data);
 
   return (
     <View style={styles.container}>
@@ -150,12 +151,9 @@ function DataForm({ data, onCancelHandler }: Props) {
             required: true,
           }}
           render={({ field: { onChange, value } }) => (
-            <RadioButton.Group
-              value={value || "stock in"}
-              onValueChange={onChange}
-            >
-              <RadioButton.Item label="Stock in" value="stock in" />
-              <RadioButton.Item label="Stock out" value="stock out" />
+            <RadioButton.Group value={value || "IN"} onValueChange={onChange}>
+              <RadioButton.Item label="Stock in" value="IN" />
+              <RadioButton.Item label="Stock out" value="OUT" />
             </RadioButton.Group>
           )}
         />
@@ -165,6 +163,7 @@ function DataForm({ data, onCancelHandler }: Props) {
       <Button
         title="Cancel"
         onPress={() => {
+          onCancelHandler();
           reset();
         }}
       />

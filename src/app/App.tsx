@@ -5,12 +5,15 @@ import Camera from "../components/Camera";
 import { registerRootComponent } from "expo";
 import ScanButton from "@/components/ScanButton";
 import DataForm, { ScannedData } from "@/components/DataForm";
+import StockTable, { StockData } from "@/components/StockTable";
+import { PaperProvider } from "react-native-paper";
 
 function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [error, setError] = useState<unknown | null>(null);
   const [isCameraVisible, setIsCameraVisible] = useState<boolean>(false);
-  const [data, setData] = useState<ScannedData>();
+  const [scannedData, setScannedData] = useState<ScannedData>();
+  const [tableData, setTableData] = useState<StockData[]>([]);
 
   useEffect(() => {
     const getBarCodeScannerPermissions = async () => {
@@ -32,8 +35,9 @@ function App() {
       description: lines[1],
       heatNumber: lines[2],
       weight: 0,
+      stockInOrOut: "IN",
     };
-    setData(parsedData);
+    setScannedData(parsedData);
     toggleCameraVisibility();
   };
 
@@ -41,8 +45,18 @@ function App() {
     setIsCameraVisible((prevState) => !prevState);
 
   const resetViews = () => {
-    toggleCameraVisibility();
-    setData(undefined);
+    setIsCameraVisible(false);
+    setScannedData(undefined);
+  };
+
+  const onSubmitHandler = (data: Required<ScannedData>) => {
+    const key = new Date().getTime();
+    const savedData: Required<StockData> = {
+      key,
+      ...data,
+    };
+    setTableData((prevState) => [...prevState, savedData]);
+    resetViews();
   };
 
   if (!permission) {
@@ -70,15 +84,26 @@ function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <Camera isOpen={isCameraVisible} onQrCodeScan={handleScannedQrCode} />
-      {data && !isCameraVisible && (
-        <DataForm data={data} onCancelHandler={resetViews} />
-      )}
-      {!data && !isCameraVisible && (
-        <ScanButton onClickHandler={toggleCameraVisibility} />
-      )}
-    </View>
+    <PaperProvider>
+      <View style={styles.container}>
+        <Camera
+          isOpen={isCameraVisible}
+          onQrCodeScan={handleScannedQrCode}
+          onClose={resetViews}
+        />
+        {!scannedData && !isCameraVisible && <StockTable data={tableData} />}
+        {scannedData && !isCameraVisible && (
+          <DataForm
+            data={scannedData}
+            onCancelHandler={resetViews}
+            onSubmitHandler={onSubmitHandler}
+          />
+        )}
+        {!scannedData && !isCameraVisible && (
+          <ScanButton onClickHandler={toggleCameraVisibility} />
+        )}
+      </View>
+    </PaperProvider>
   );
 }
 
